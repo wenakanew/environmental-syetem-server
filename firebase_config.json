@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "smart-environmental-syst-ff8bb",
+  "private_key_id": "d5b625050d8ba47ae270c07f8dc2814635ad3fe6",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDAvrPcjHqZ7XjL\nWuruIkkKypvfRWXL9Pf/nMWNa+L73jQU0qmk0xavG/ac0+L1kH88DsYWRvovuVCy\nc8yy7bBpCPaPk1enGzXDFFGmJWZ0ZYcoFvqAqCJwXZh9d9Ea2qYq0mL819d6fiwL\nAfnfGeEcWT602xumCKwWa+o4ZYPoDrWW6UYvJfL70h+2/55fk0OvLGUN6xMPgpss\ntOaqbciM3N7lJiUEwdkBSyjzrVJm1rP6o+heHuIG6uFEBA9oMuQi1IdEbtFW0k50\n4U866zLb/4XCIUVzBertZVf7ApR1pPkomheNUlZzTEYzjLFTkRQsqHspVgq5SGhU\nNDibInN/AgMBAAECggEAOXbhwuhzCP9e2yoRDsxUAI6laCyVi/hOE/xWfbJjqvn1\nhxvDjiuNAMoSfXFCojnhZTN2ZV/l6WKTp5CUv+fTh40vjWC9aknXfoDJUwKliCBY\n6l/ncYIvOlb9RrL5OctkbTHqZz2mtZN2aBW/vH9HuR72bg9BMAA35jtoSkYhzIZJ\nphbdPwtaeuDBTVBPQ7jKPjCYI6NKd29+fY/AXE/Cm0aQO74V+/R1D8ZBI2zX+wXC\no9eZkO4Ej1SX9z0D8l2xb3rpYJ0/cPeZwfw0XnOnIMjTfqrPA9ZPj9M0s5gy5ng1\nLiwXZHx45vd0SHdA4pHBaTTPGZi9WDC2s8V4TDlYUQKBgQDkaQNgdgyEAmcg84Na\n67EOX1UbJy8GhN4v7lzsy0W9eac8fChbWI8vp3ft30NNTR0FDQgJIFAesYjGO6LC\npE96rMyuJ4EANRGoLNySomnJKblw8dfHrKx1SoXaXt6gEyDgCQJA4IaI3ZxgJcfS\n1pT14tZVyEhYzDs4xcX7apkrJwKBgQDYBtWRX6GLFpEbRc2RIk9SeimeChClscdI\nyNd8Woyq7p0HW2aAp5fjKr7YX5tUnkgbQr4W0CzyZ4pj7zl3pJ5ameLjo98Tkbwb\nU7Fgi6pPSkVKoVNVx27CFamly99R4pLUUeACldfaEK8b+DWOB/m/QpKVjZo2+kv/\nh/twOdSL6QKBgQC75Qc6GuJA1hkwKiIscSa9w/6mz50Hp9V/aH5Y7P7511GTmC86\ntadUdFdb/wXGWWE9/nJVz5cZKMJzECvcIn6fU/csbKLaIM3dosnwdlq/eOtr1gbD\n43AbLKrf8JsC47lvkvmflRQXEvbIwUuYTZ1MiMX420FoitlM4qTzJcXKkQKBgQCe\n8ghZeh+GEwiZJHbn/nKWoMPWQFmXUILsjrneCVHOwtpO+3Uj3CvpPR5GXbIQRJWR\nWT470tf/UyeD+BQ0b68Dwo4qJ/yOjX/2K1IrUxfwVxk8nA6Q4rgfnYjBMIwT171o\n8wT7Yfz7uaLd1XayFjQwAW+REisRoIAid48NN7+nYQKBgEuZaP79W7x7v1IPrQtq\nioVrhzgxYWmJs0orOnqKbnYwoob1ca6PhkObrfX9RCEdeQCNkfFfdtd3IokAMsce\nbh42DLK/UQiY8ehwkp6dHqDDs4gII9738usU0drIr88p41XXLS0ogkyvf/P/ytoT\nAiXYmoNFxyLwrUuIQD6O85vx\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@smart-environmental-syst-ff8bb.iam.gserviceaccount.com",
+  "client_id": "118425334045022971041",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40smart-environmental-syst-ff8bb.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
