@@ -14,18 +14,20 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # ---------------------------------------------------------
-# Firebase Initialization (using Render ENV variable)
+# Firebase Initialization (using Render Secret File)
 # ---------------------------------------------------------
-firebase_json = os.environ.get("FIREBASE_CREDENTIALS")
+# Render Secret File path
+FIREBASE_SECRET_FILE = "/etc/secrets/firebase_config.json"
 
-if not firebase_json:
+if not os.path.exists(FIREBASE_SECRET_FILE):
     raise Exception(
-        "FIREBASE_CREDENTIALS environment variable is missing! "
-        "Add it in Render → Environment → FIREBASE_CREDENTIALS"
+        f"Firebase secret file not found at {FIREBASE_SECRET_FILE}! "
+        "Upload it in Render → Environment → Secret Files → Name: firebase_config.json"
     )
 
-# Convert JSON string → Python dict
-cred_dict = json.loads(firebase_json)
+# Load JSON credentials from file
+with open(FIREBASE_SECRET_FILE, "r") as f:
+    cred_dict = json.load(f)
 
 cred = credentials.Certificate(cred_dict)
 
@@ -35,7 +37,6 @@ firebase_admin.initialize_app(cred, {
 
 # Firebase reference
 ref = db.reference("/sensor_readings")
-
 
 # ---------------------------------------------------------
 # ROUTES
