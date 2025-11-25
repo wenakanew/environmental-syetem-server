@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials, db
-import datetime
+from datetime import datetime, timezone, timedelta
 import json
 import os
 
@@ -14,9 +14,8 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # ---------------------------------------------------------
-# Firebase Initialization (using Render Secret File)
+# Firebase Initialization (Render Secret File)
 # ---------------------------------------------------------
-# Render Secret File path
 FIREBASE_SECRET_FILE = "/etc/secrets/firebase_config.json"
 
 if not os.path.exists(FIREBASE_SECRET_FILE):
@@ -25,7 +24,7 @@ if not os.path.exists(FIREBASE_SECRET_FILE):
         "Upload it in Render → Environment → Secret Files → Name: firebase_config.json"
     )
 
-# Load JSON credentials from file
+# Load Firebase credentials
 with open(FIREBASE_SECRET_FILE, "r") as f:
     cred_dict = json.load(f)
 
@@ -38,16 +37,24 @@ firebase_admin.initialize_app(cred, {
 # Firebase reference
 ref = db.reference("/sensor_readings")
 
+# Kenya timezone (UTC+3)
+KENYA_TZ = timezone(timedelta(hours=3))
+
+# ---------------------------------------------------------
+# Helper function for timezone-aware timestamp
+# ---------------------------------------------------------
+def get_kenya_timestamp():
+    return datetime.now(KENYA_TZ).isoformat()
+
 # ---------------------------------------------------------
 # ROUTES
 # ---------------------------------------------------------
-
 @app.route('/', methods=['GET'])
 def root():
     return jsonify({
         "ok": True,
         "service": "backend",
-        "time": datetime.datetime.now().isoformat(),
+        "time": get_kenya_timestamp(),
         "endpoints": {
             "send": "POST /send",
             "readings": "GET /readings?limit=100",
@@ -56,7 +63,6 @@ def root():
         }
     }), 200
 
-
 @app.route('/send', methods=['POST'])
 def receive_data():
     try:
@@ -64,7 +70,7 @@ def receive_data():
         print("Received data:", data)
 
         air_quality = float(data.get("air_quality", 0))
-        timestamp = datetime.datetime.now().isoformat()
+        timestamp = get_kenya_timestamp()
 
         payload = {
             "air_quality": air_quality,
@@ -79,7 +85,6 @@ def receive_data():
     except Exception as e:
         print("Error in /send:", e)
         return jsonify({"success": False, "error": str(e)}), 500
-
 
 @app.route('/readings', methods=['GET'])
 def get_readings():
@@ -97,7 +102,6 @@ def get_readings():
         print("Error in /readings:", e)
         return jsonify({"success": False, "error": str(e)}), 500
 
-
 @app.route('/readings/latest', methods=['GET'])
 def latest_reading():
     try:
@@ -113,15 +117,13 @@ def latest_reading():
         print("Error in /readings/latest:", e)
         return jsonify({"success": False, "error": str(e)}), 500
 
-
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({
         "ok": True,
         "service": "backend",
-        "time": datetime.datetime.now().isoformat()
+        "time": get_kenya_timestamp()
     }), 200
-
 
 # ---------------------------------------------------------
 # RENDER PRODUCTION SERVER
@@ -129,3 +131,4 @@ def health():
 if __name__ == '__main__':
     from waitress import serve
     serve(app, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+
