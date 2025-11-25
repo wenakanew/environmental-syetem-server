@@ -3,6 +3,7 @@ from flask_cors import CORS
 from utils.firebase_helper import send_data, get_recent_readings, get_latest_reading
 from anomaly_detection import detect_anomaly
 import datetime
+import os
 
 app = Flask(__name__)
 
