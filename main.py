@@ -1,71 +1,73 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from utils.firebase_helper import send_data, get_recent_readings, get_latest_reading
-from anomaly_detection import detect_anomaly
+import firebase_admin
+from firebase_admin import credentials, db
 import datetime
 import os
 
 app = Flask(__name__)
 
-# Enable CORS for frontend apps
-CORS(app, resources={r"/*": {"origins": [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:8080",
-    "http://127.0.0.1:8080",
-    "https://environmental-system-dashboard.vercel.app"
-]}})
+# ---------------------------------------------
+# Allow frontend access
+# ---------------------------------------------
+CORS(app, resources={r"/*": {"origins": "*"}})
 
+# ---------------------------------------------
+# Firebase Initialization
+# ---------------------------------------------
+cred = credentials.Certificate("firebase-key.json")
+
+firebase_admin.initialize_app(cred, {
+    "databaseURL": "https://smart-environmental-syst-ff8bb-default-rtdb.firebaseio.com/"
+})
+
+# Reference to RTDB path
+ref = db.reference("/sensor_readings")
+
+
+# ---------------------------------------------
+# ROUTES
+# ---------------------------------------------
 
 @app.route('/', methods=['GET'])
 def root():
-    try:
-        latest = get_latest_reading()
-        return jsonify({
-            "ok": True,
-            "service": "backend",
-            "time": datetime.datetime.now().isoformat(),
-            "latest": latest,
-            "endpoints": {
-                "send": "POST /send",
-                "readings": "GET /readings?limit=100",
-                "latest": "GET /readings/latest",
-                "health": "GET /health"
-            }
-        }), 200
-    except Exception as e:
-        return jsonify({
-            "ok": False,
-            "service": "backend",
-            "time": datetime.datetime.now().isoformat(),
-            "error": str(e)
-        }), 500
+    return jsonify({
+        "ok": True,
+        "service": "backend",
+        "time": datetime.datetime.now().isoformat(),
+        "endpoints": {
+            "send": "POST /send",
+            "readings": "GET /readings?limit=100",
+            "latest": "GET /readings/latest",
+            "health": "GET /health"
+        }
+    }), 200
 
 
 @app.route('/send', methods=['POST'])
 def receive_data():
     try:
         data = request.get_json(force=True)
-        print("Received data:", data)  # Debugging line
+        print("Received data:", data)
 
-        air_quality = float(data.get('air_quality', 0))
+        # Extract sensor values
+        air_quality = float(data.get("air_quality", 0))
+
+        # Timestamp
         timestamp = datetime.datetime.now().isoformat()
 
-        # Run anomaly detection
-        anomaly = detect_anomaly(air_quality)
-
+        # Create clean payload
         payload = {
-            'air_quality': air_quality,
-            'timestamp': timestamp,
-            'status': anomaly['status'],
-            'message': anomaly['message']
+            "air_quality": air_quality,
+            "timestamp": timestamp
         }
 
-        # Push to Firebase
-        send_data(payload)
-        print("Payload sent to Firebase:", payload)  # Debugging line
+        # Push directly to Firebase RTDB
+        ref.push(payload)
 
-        return jsonify({"success": True, "data": payload}), 200
+        print("Uploaded to Firebase:", payload)
+
+        return jsonify({"success": True, "uploaded": payload}), 200
 
     except Exception as e:
         print("Error in /send:", e)
@@ -75,27 +77,47 @@ def receive_data():
 @app.route('/readings', methods=['GET'])
 def get_readings():
     try:
-        limit = int(request.args.get('limit', 100))
-        readings = get_recent_readings(limit=limit)
+        limit = int(request.args.get("limit", 100))
+
+        data = ref.order_by_key().limit_to_last(limit).get()
+        if not data:
+            return jsonify([]), 200
+
+        # Convert dict -> list
+        readings = list(data.values())
+
         return jsonify(readings), 200
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route('/readings/latest', methods=['GET'])
-def get_latest():
+def latest_reading():
     try:
-        latest = get_latest_reading()
+        data = ref.order_by_key().limit_to_last(1).get()
+        if not data:
+            return jsonify(None), 200
+
+        latest = list(data.values())[0]
         return jsonify(latest), 200
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({"ok": True, "service": "backend", "time": datetime.datetime.now().isoformat()}), 200
+    return jsonify({
+        "ok": True,
+        "service": "backend",
+        "time": datetime.datetime.now().isoformat()
+    }), 200
 
 
+# ---------------------------------------------
+# Render Production Server
+# ---------------------------------------------
 if __name__ == '__main__':
     from waitress import serve
     serve(app, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
