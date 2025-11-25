@@ -1,47 +1,39 @@
 import firebase_admin
 from firebase_admin import credentials, db
+import os
 
-# Path to your Firebase service account JSON
-SERVICE_ACCOUNT_PATH = "firebase_config.json"
-DATABASE_URL = "https://smart-environmental-syst-ff8bb-default-rtdb.firebaseio.com/"
+FIREBASE_CRED_PATH = os.getenv("FIREBASE_CRED_PATH", "firebase_config.json")
 
-# Initialize Firebase app once
+cred = credentials.Certificate(FIREBASE_CRED_PATH)
 if not firebase_admin._apps:
-    cred = credentials.Certificate(SERVICE_ACCOUNT_PATH)
     firebase_admin.initialize_app(cred, {
-        'databaseURL': DATABASE_URL
+        'databaseURL': 'https://smart-environmental-syst-ff8bb-default-rtdb.firebaseio.com/'
     })
 
 SENSOR_READINGS_PATH = 'sensor_readings'
-
 
 def send_data(sensor_data):
     try:
         ref = db.reference(SENSOR_READINGS_PATH)
         ref.push(sensor_data)
-        print("Data pushed to Firebase:", sensor_data)
+        print("Firebase write successful:", sensor_data)
     except Exception as e:
-        print("Firebase push error:", e)
-
+        print("Firebase write failed:", e)
 
 def get_recent_readings(limit=100):
-    try:
-        ref = db.reference(SENSOR_READINGS_PATH)
-        snapshot = ref.order_by_child('timestamp').limit_to_last(int(limit)).get()
-        if not snapshot:
-            return []
-        readings = list(snapshot.values())
-        readings.sort(key=lambda r: r.get('timestamp', ''))
-        return readings
-    except Exception as e:
-        print("Error fetching recent readings:", e)
+    ref = db.reference(SENSOR_READINGS_PATH)
+    snapshot = ref.order_by_child('timestamp').limit_to_last(int(limit)).get()
+    if not snapshot:
         return []
-
+    readings = list(snapshot.values())
+    try:
+        readings.sort(key=lambda r: r.get('timestamp', ''))
+    except Exception:
+        pass
+    return readings
 
 def get_latest_reading():
     readings = get_recent_readings(limit=1)
     if readings:
         return readings[-1]
-    return None
-
     return None
